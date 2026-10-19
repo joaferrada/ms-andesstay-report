@@ -21,7 +21,7 @@ $env:AUDIT_URL="http://localhost:8086"
 | `RESERVATIONS_URL` | `http://localhost:8081` | `andesstay.services.reservations.url` |
 | `AUDIT_URL` | `http://localhost:8086` | `andesstay.services.audit.url` |
 
-En Docker usar el nombre del contenedor (ej. `RESERVATIONS_URL=http://ms-andesstay-reservations:8081`). Timeouts: conexion 2 s, lectura 10 s (`andesstay.services.connect-timeout` / `read-timeout`). No hay secretos: ver `.env.example`.
+En Docker usar el nombre de servicio de infra/compose.yml (ej. `RESERVATIONS_URL=http://reservations:8081`). Timeouts: conexion 2 s, lectura 10 s (`andesstay.services.connect-timeout` / `read-timeout`). No hay secretos: ver `.env.example`.
 
 ## Endpoints
 
@@ -63,6 +63,18 @@ curl "http://localhost:8087/api/report/kpis?range=last24h" -H "Authorization: Be
 | GET `/api/report/kpis` y `/top-units` | si | no | no | no |
 
 `@PreAuthorize("hasRole('Admin')")`; otro rol -> **403**. Como el token de Admin se propaga, reservations devuelve todas las reservas y audit permite leer los timelines.
+
+## Docker
+
+`Dockerfile` multi-stage: build con `maven:3.9-eclipse-temurin-17` y runtime `eclipse-temurin:17-jre` con usuario no root, puerto **8087** y `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75`. Se levanta junto al resto del backend con el compose unico de `infra` (ver su README):
+
+```powershell
+cd ..\infra
+docker compose up -d --build report
+docker compose logs -f report
+```
+
+En el compose apunta a `http://reservations:8081` y `http://audit:8086`; arranca cuando reservations esta healthy. Healthcheck: `GET http://localhost:8087/actuator/health`.
 
 ## Tests
 
