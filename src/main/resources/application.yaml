@@ -13,7 +13,7 @@ spring:
           jwk-set-uri: https://login.microsoftonline.com/524de923-14d5-4e21-bbbf-525ca2e1ced7/discovery/keys
 
 # Sin base de datos: los KPIs se calculan al momento consultando por REST (JWT del usuario propagado).
-# En Docker usar los nombres de contenedor, ej. RESERVATIONS_URL=http://ms-andesstay-reservations:8081
+# En Docker usar los nombres de servicio de infra/compose.yml, ej. RESERVATIONS_URL=http://reservations:8081
 andesstay:
   services:
     reservations:
@@ -22,3 +22,10 @@ andesstay:
       url: ${AUDIT_URL:http://localhost:8086}
     connect-timeout: 2s
     read-timeout: 10s
+
+# Solo /actuator/health (healthcheck de Docker)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
