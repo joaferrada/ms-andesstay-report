@@ -1,0 +1,24 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: ms-andesstay-report
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://sts.windows.net/524de923-14d5-4e21-bbbf-525ca2e1ced7/
+          jwk-set-uri: https://login.microsoftonline.com/524de923-14d5-4e21-bbbf-525ca2e1ced7/discovery/keys
+
+# Sin base de datos: los KPIs se calculan al momento consultando por REST (JWT del usuario propagado).
+# En Docker usar los nombres de contenedor, ej. RESERVATIONS_URL=http://ms-andesstay-reservations:8081
+andesstay:
+  services:
+    reservations:
+      url: ${RESERVATIONS_URL:http://localhost:8081}
+    audit:
+      url: ${AUDIT_URL:http://localhost:8086}
+    connect-timeout: 2s
+    read-timeout: 10s
